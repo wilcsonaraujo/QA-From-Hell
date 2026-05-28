@@ -37,7 +37,7 @@ async function onSubmitQuestion() {
 
     if (!question) return;
 
-    const mode = document.querySelector('input[name="mode"]:checked')?.value || 'chaos';
+    const mode = document.querySelector('input[name="mode"]:checked')?.value
 
     try {
         toggleSendOrStopButton(true)
@@ -49,12 +49,11 @@ async function onSubmitQuestion() {
 
         const aiResponseChunks = askAI(question, mode);
 
-   
         let fullResponse = '';
 
         for await (const chunk of aiResponseChunks) {
             if (aiContext.abortController?.signal.aborted) break;
-            fullResponse = chunk;
+            fullResponse += chunk;
             elements.output.innerHTML = marked.parse(fullResponse);
         }
 
@@ -92,55 +91,50 @@ async function* askAI(question, mode) {
     aiContext.abortController?.abort();
     aiContext.abortController = new AbortController();
 
-    const aiApi = window.ai;
-    if (!aiApi || !aiApi.languageModel) {
+    const aiApi = await window.LanguageModel.availability();
+    if (aiApi !== "available") {
         throw new Error("AI API not available.");
     }
 
     const systemPrompts = {
-        'gentle': 'Você é um revisor de código extremamente carinhoso e construtivo. Use emojis fofos e incentive o programador.',
-        'senior-qa': 'Você é um QA Senior meticuloso. Foque em bugs, edge cases e boas práticas de forma profissional.',
-        'chaos': 'Você é o Chaos Engineer. Seja sarcástico, impiedoso e destrua o código com críticas ácidas e humor negro.'
+        'gentle': "Você é um revisor de código gentil e encorajador. Aponte problemas com carinho e sugestões construtivas. Tom acolhedor, emojis ok. Responda em português.",
+        'senior-qa': "Você é um Engenheiro de QA Sênior meticuloso. Identifique bugs, edge cases, testes faltando e problemas de qualidade com linguagem precisa e profissional. Responda em português.",
+        'chaos': "Você é um Chaos Engineer que destrói código com humor selvagem e honestidade brutal. Seja hilariamente cruel mas tecnicamente preciso. Sarcasmo pesado, humor ácido, emojis. Responda em português.",
     };
 
     if (aiContext.session) {
-        try { await aiContext.session.destroy(); } catch (e) {}
+        try { await aiContext.session.destroy(); } catch (e) { }
         aiContext.session = null;
     }
 
-    aiContext.session = await window.ai.languageModel.create({
-        systemPrompt: systemPrompts[mode] || systemPrompts['chaos']
+    const personality = systemPrompts[mode]
+    const finalPrompt = `Instrução de Personalidade: ${personality}\n\nCódigo para analisar:\n${question}`;
+
+    aiContext.session = await window.LanguageModel.create({
+        expectedInputLanguages: ["pt"],
+        systemPrompt: systemPrompts[mode]
     });
 
-    const responseStream = await aiContext.session.promptStreaming(
-        question,
-        {
-            signal: aiContext.abortController.signal,
-        }
-    );
-
-    for await (const chunk of responseStream){
-        yield chunk;
+    const responseStream = await aiContext.session.promptStreaming(finalPrompt);
+    for await (const chunk of responseStream) {
+        yield chunk
     }
 
-    if (aiContext.session) {
-        try { await aiContext.session.destroy(); } catch (e) {}
-        aiContext.session = null;
-    }
 }
 
-function init() {
+async function init() {
 
     setupEventListeners()
 
-    const hasAi = typeof window.ai !== 'undefined' && window.ai !== null && typeof window.ai.languageModel !== 'undefined';
-
-    if (!hasAi) {
+    const availability = await window.LanguageModel.availability()
+    console.log("API status: " + availability)
+    
+    if (availability !== "available") {
         if (elements.error) {
             elements.error.textContent = "API LanguageModel not available.";
             elements.error.classList.remove('hidden')
         }
-    }
+    } 
 }
 
 init();
