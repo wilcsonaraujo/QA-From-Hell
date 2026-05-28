@@ -24,7 +24,7 @@ function setupEventListeners() {
         event.preventDefault();
 
         if (aiContext.isGenerating) {
-            toggleSendOrStopButton(false)
+            stopGeneration();
             return;
         }
 
@@ -37,7 +37,7 @@ async function onSubmitQuestion() {
 
     if (!question) return;
 
-    const radioSelected = document.querySelector('input[name="mode"]:checked')?.value
+    const mode = document.querySelector('input[name="mode"]:checked')?.value || 'chaos';
 
     try {
         toggleSendOrStopButton(true)
@@ -46,24 +46,24 @@ async function onSubmitQuestion() {
         elements.output.innerHTML = '<div class="spinner"></div> Processing your code...';
         elements.error.classList.add('hidden');
 
-        
-        const aiResponseChunks = askAI(question);
+
+        const aiResponseChunks = askAI(question, mode);
 
    
-        elements.output.textContent = '';
+        let fullResponse = '';
 
         for await (const chunk of aiResponseChunks) {
-            if (aiContext.abortController?.signal.aborted) {
-                break;
-            }
-
-            elements.output.textContent += chunk;
+            if (aiContext.abortController?.signal.aborted) break;
+            fullResponse = chunk;
+            elements.output.innerHTML = marked.parse(fullResponse);
         }
 
     } catch (error) {
         if (error.name !== 'AbortError') {
             console.error('AI generation error:', error);
-            elements.output.textContent = 'Error generating response.';
+            elements.output.textContent = 'Error generating response.' + error.message;
+            elements.error.classList.remove('hidden');
+            elements.output.classList.add('hidden');
         }
     } finally {
         toggleSendOrStopButton(false);
@@ -71,80 +71,76 @@ async function onSubmitQuestion() {
 }
 
 function toggleSendOrStopButton(isGenerating) {
+    aiContext.isGenerating = isGenerating;
     if (isGenerating) {
-        aiContext.isGenerating = isGenerating;
         elements.button.textContent = 'Stop';
         elements.button.classList.add('stop-button');
     } else {
-        aiContext.abortController?.abort();
-        aiContext.isGenerating = isGenerating;
         elements.button.textContent = 'Analyze';
         elements.button.classList.remove('stop-button');
     }
 }
 
-async function* askAI(question, temperature = 0.7, topK = 3) {
+function stopGeneration() {
+    if (aiContext.abortController) {
+        aiContext.abortController.abort();
+    }
+    toggleSendOrStopButton(false);
+}
+
+async function* askAI(question, mode) {
     aiContext.abortController?.abort();
     aiContext.abortController = new AbortController();
 
-    elements.output.classList.remove('hidden');
+    const aiApi = window.ai;
+    if (!aiApi || !aiApi.languageModel) {
+        throw new Error("AI API not available.");
+    }
 
-    // Destroy previous session and create new one with updated parameters
+    const systemPrompts = {
+        'gentle': 'Você é um revisor de código extremamente carinhoso e construtivo. Use emojis fofos e incentive o programador.',
+        'senior-qa': 'Você é um QA Senior meticuloso. Foque em bugs, edge cases e boas práticas de forma profissional.',
+        'chaos': 'Você é o Chaos Engineer. Seja sarcástico, impiedoso e destrua o código com críticas ácidas e humor negro.'
+    };
+
     if (aiContext.session) {
-        aiContext.session.destroy();
+        try { await aiContext.session.destroy(); } catch (e) {}
         aiContext.session = null;
     }
 
-    aiContext.session = await LanguageModel.create({
-        expectedInputLanguages: ["pt"],
-        temperature,
-        topK,
-        initialPrompts: [
-            {
-                role: 'system', content: 'Você é um assistente de IA que responde de forma clara e objetiva. Responda sempre em formato de texto ao invés de markdown'
-            },
-        ],
+    aiContext.session = await window.ai.languageModel.create({
+        systemPrompt: systemPrompts[mode] || systemPrompts['chaos']
     });
 
     const responseStream = await aiContext.session.promptStreaming(
-        [
-            {
-                role: 'user',
-                content: question,
-            },
-        ],
+        question,
         {
             signal: aiContext.abortController.signal,
         }
     );
 
-    try {
-        for await (const chunk of responseStream) {
-            if (aiContext.abortController.signal.aborted) {
-                break;
-            }
-            console.log('chunk:', chunk);
-            yield chunk;
-        }
-    } finally {
-        aiContext.session?.destroy();
+    for await (const chunk of responseStream){
+        yield chunk;
+    }
+
+    if (aiContext.session) {
+        try { await aiContext.session.destroy(); } catch (e) {}
         aiContext.session = null;
     }
 }
 
-(async function main() {
+function init() {
 
-    if (!window.LanguageModel) {
-        elements.output.textContent = "API LanguageModel not available.";
-        return;
+    setupEventListeners()
+
+    const hasAi = typeof window.ai !== 'undefined' && window.ai !== null && typeof window.ai.languageModel !== 'undefined';
+
+    if (!hasAi) {
+        if (elements.error) {
+            elements.error.textContent = "API LanguageModel not available.";
+            elements.error.classList.remove('hidden')
+        }
     }
+}
 
-    try {
-        return setupEventListeners()
-
-    } catch (err) {
-        console.error(err);
-        elements.output.innerHTML = err.message;
-    }
-
-})();
+init();
