@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QA From Hell 🔥</title>
+<link rel="stylesheet" href="styles.css" />
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <div class="badge">
+        <span class="flame">🔥</span>
+        <h1>QA From Hell</h1>
+      </div>
+      <p class="subtitle">Cole seu código. Escolha o tom. Receba sua review.</p>
+    </header>
+
+    <form id="roast-form">
+      <label for="code" class="label">Seu código</label>
+      <textarea
+        id="code"
+        placeholder="// cole aqui o código que você quer ver pegando fogo..."
+        maxlength="20000"
+        required
+      ></textarea>
+      <div class="counter"><span id="counter">0</span> / 20000</div>
+
+      <p class="label">Modo</label>
+      <div class="modes">
+        <label class="mode-card">
+          <input type="radio" name="mode" value="gentle" />
+          <div>
+            <div class="mode-title">🤗 Gentle</div>
+            <div class="mode-desc">Carinhoso e construtivo</div>
+          </div>
+        </label>
+        <label class="mode-card">
+          <input type="radio" name="mode" value="senior-qa" />
+          <div>
+            <div class="mode-title">🧪 Senior QA</div>
+            <div class="mode-desc">Profissional e meticuloso</div>
+          </div>
+        </label>
+        <label class="mode-card">
+          <input type="radio" name="mode" value="chaos" checked />
+          <div>
+            <div class="mode-title">😈 Chaos Engineer</div>
+            <div class="mode-desc">Sem piedade, puro caos</div>
+          </div>
+        </label>
+      </div>
+
+      <button type="submit" id="submit-btn">
+        <span class="btn-label">🔥 Analisar</span>
+      </button>
+    </form>
+
+    <div id="error" class="error hidden"></div>
+    <article id="result" class="result hidden"></article>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

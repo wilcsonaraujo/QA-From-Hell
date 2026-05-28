@@ -1,0 +1,182 @@
+:root {
+  --bg: #0f0f12;
+  --card: #18181c;
+  --border: #2a2a31;
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --primary: #f97316;
+  --primary-hover: #ea580c;
+  --accent: #27272a;
+  --danger: #ef4444;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 48px 20px;
+}
+
+.hero { text-align: center; margin-bottom: 40px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.1);
+}
+
+.badge h1 { font-size: 1.4rem; font-weight: 700; }
+.flame { font-size: 1.3rem; }
+.subtitle { margin-top: 16px; color: var(--muted); font-size: 0.95rem; }
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  margin-top: 24px;
+}
+.label:first-of-type { margin-top: 0; }
+
+textarea {
+  width: 100%;
+  min-height: 260px;
+  padding: 14px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+}
+textarea:focus { border-color: var(--primary); }
+
+.counter {
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.modes {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.mode-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-card:hover { background: var(--accent); }
+.mode-card:has(input:checked) {
+  border-color: var(--primary);
+  background: rgba(249, 115, 22, 0.08);
+}
+
+.mode-card input { margin-top: 4px; accent-color: var(--primary); }
+.mode-title { font-weight: 500; font-size: 0.9rem; }
+.mode-desc { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+button[type="submit"] {
+  width: 100%;
+  margin-top: 28px;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+button[type="submit"]:hover:not(:disabled) { background: var(--primary-hover); }
+button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.error {
+  margin-top: 28px;
+  padding: 14px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: var(--danger);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.result {
+  margin-top: 32px;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.result h1, .result h2, .result h3 { margin: 16px 0 8px; font-weight: 600; }
+.result h1 { font-size: 1.3rem; }
+.result h2 { font-size: 1.15rem; }
+.result h3 { font-size: 1rem; }
+.result p { margin: 8px 0; }
+.result ul, .result ol { margin: 8px 0 8px 24px; }
+.result li { margin: 4px 0; }
+.result code {
+  background: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 0.85em;
+}
+.result pre {
+  background: #0a0a0c;
+  padding: 14px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+}
+.result pre code { background: transparent; padding: 0; }
+.result blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 12px;
+  margin: 12px 0;
+  color: var(--muted);
+}
+
+.hidden { display: none; }
+
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
