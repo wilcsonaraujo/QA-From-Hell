@@ -128,13 +128,13 @@ async function init() {
 
     const availability = await window.LanguageModel.availability()
     console.log("API status: " + availability)
-    
+
     if (availability !== "available") {
         if (elements.error) {
             elements.error.textContent = "API LanguageModel not available.";
             elements.error.classList.remove('hidden')
         }
-    } 
+    }
 }
 
 init();
