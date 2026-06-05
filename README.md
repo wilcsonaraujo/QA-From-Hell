@@ -29,6 +29,11 @@ git clone https://github.com/seu-usuario/qa-from-hell.git
 npm install -g serve
 serve .
 ```
+Ou rodar o comando:
+
+```Bash
+npm start
+```
 
 ## Tecnologias Utilizadas
 
