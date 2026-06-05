@@ -35,7 +35,7 @@ Ou rodar o comando:
 npm start
 ```
 
-Ou apenas abrir o `index.html` no navegador Chrone.
+Ou apenas abrir o `index.html` no navegador Chrone (Recomendado).
 
 ## Tecnologias Utilizadas
 
