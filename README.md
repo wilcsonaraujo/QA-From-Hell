@@ -35,6 +35,8 @@ Ou rodar o comando:
 npm start
 ```
 
+Ou apenas abrir o `index.html` no navegador Chrone.
+
 ## Tecnologias Utilizadas
 
 * **HTML5/CSS3**: Estrutura e estilização moderna com variáveis CSS.
